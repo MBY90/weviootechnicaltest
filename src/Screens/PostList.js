@@ -15,7 +15,7 @@ export default function PostList() {
        return  API.get(`/post`,{ params: { limit :limit, page:page } })
     }
      //caching data with react query 
-  const {isLoading,refetch,data} = useQuery('getPosts',getPosts,{
+  const {isLoading} = useQuery('getPosts',getPosts,{
               
     onSuccess:(res)=>{
      setPosts(res)
