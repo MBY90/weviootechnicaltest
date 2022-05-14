@@ -4,13 +4,25 @@ import {API} from './Api';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import PostList from './Screens/PostList';
 import Header from './Components/Header';
+import PostDispaly from './Screens/PostDispaly';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+
 function App() {
+
+  
   return (
-   <div>
-   <Header/>
-   <PostList/>
+    <BrowserRouter>
+    <Routes>
+   <Route path="/" element={<PostList/>} />
+   <Route path="/PostDispaly" element={<PostDispaly/>} />
+   </Routes>
    <ReactQueryDevtools initialIsOpen={false} />
-   </div>
+   </BrowserRouter>
   );
 }
 
