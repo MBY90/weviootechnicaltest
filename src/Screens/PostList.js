@@ -110,10 +110,10 @@ refetch()
 <Title title="Posts's List"/>
 <center>
 <div className='searchContainer'>
-
-<label style={{pading:20,fontSize:13}}>Search by user </label>
-
 <select onChange={(e)=>setIdUser(e.target.value)}  className="form-select ">
+<option value="" disabled selected>
+Search by user
+</option>
 { users?.data?.data.map((u,index)=>{
   return <option style={{color:Theme.gray}} key={u.id} value={u.id}>{u.firstName} {u.lastName }</option>
 })}

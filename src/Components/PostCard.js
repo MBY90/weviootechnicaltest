@@ -4,7 +4,7 @@ import { Card } from 'react-bootstrap'
 export default function PostCard({post}) {
 //console.log(post)
   return (
-    <Card className='cardContainer' style={{ width:'80%'}}>
+    <Card className='cardContainer' style={{ width:'80%',marginTop:10,}}>
     <div style={{width:'60%'}}>
     <Card.Img src={post.image} className="imgpost" />
     </div>
