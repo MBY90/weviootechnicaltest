@@ -19,7 +19,7 @@ function App() {
     <BrowserRouter>
     <Header/>
     <Routes>
-   <Route path="/" element={<PostList/>} />
+   <Route path="/weviootechnicaltest" element={<PostList/>} />
    <Route path="/PostDispaly" element={<PostDispaly/>} />
    </Routes>
    <ReactQueryDevtools initialIsOpen={false} />
