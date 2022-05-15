@@ -6,7 +6,13 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import { QueryClient, QueryClientProvider} from "react-query";
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 root.render(
   <React.StrictMode>
   <QueryClientProvider client={queryClient}>

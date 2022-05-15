@@ -17,6 +17,7 @@ function App() {
   
   return (
     <BrowserRouter>
+    <Header/>
     <Routes>
    <Route path="/" element={<PostList/>} />
    <Route path="/PostDispaly" element={<PostDispaly/>} />

@@ -8,31 +8,74 @@ import { Theme } from '../Colors.js/Color';
 import { Link } from 'react-router-dom';
 import PostCard from '../Components/PostCard';
 import { Rings } from  'react-loader-spinner';
+import axios from 'axios';
+
 export default function PostList() {
     const [posts,setPosts]=useState([])
     const [err,setErr]=useState('')
     const [limit,setLimit]=useState(20);
-    const [page,setPage]=useState(1);
+    const [page,setPage]=useState(0);
     const [limitNumber,setlimitNumber]=useState([])
+    const [isAllPost,setIsAllPost]=useState(true);
+    const [isPostByUser,setIsPostByUser]=useState(false);
+    const [isPostByTag,setIsPostTag]=useState(false);
+    const[users,setUsers]=useState([]);
+    const[tags,setTags]=useState([]);
+    const [idUser,setIdUser]=useState('');
+    const[tag,setTag]=useState('');
 
+//on mount ofcomponenet do those actions
     useEffect(() => {
+
+
       //on mount clear error
     setErr('');
-    //on mount fill an array of numbers of multiple 0 to 55   
+
+    //on mount fill an array of numbers of multiple 5 limit is  50
     let tab = [...Array(11)].map((_, i) => i*5)
     //delete the 0 from tab so the first number will be 5 and  0 
     let nbr=tab.shift()
     setlimitNumber(tab)
     }, [])
-// getpost ws call 
+
+  
+    
+//get lists of user 
+const getUserTagList=async()=>{
+const listUser= API.get(`/user`,{ params: { limit :limit } })
+const listTag=  API.get(`/tag`,{ params: { limit :limit } })
+await axios.all([listUser,listTag]).then(axios.spread((res1, res2)=> {
+  setUsers(res1);
+  setTags(res2);
+})
+
+).
+catch(axios.spread((err1, err2)=>{
+console.log({err1})
+console.log({err2})
+})
+)
+}
+
+
+useEffect(() => {
+  //get list of users and tags on mount
+  getUserTagList();
+
+ }, [limit])
+
+// getposts ws call 
     const getPosts= ()=>{
-       return   API.get(`/post`,{ params: { limit :limit, page:page } })
+      if(isAllPost) return   API.get(`/post`,{ params: { limit :limit, page:page } })
+      else if(isPostByUser) return API.get(`/user/${idUser}/post`,{ params: { limit :limit,page:page} })
+      else if (isPostByTag) return  API.get(`/tag/${tag}/post`,{ params: { limit :limit, page:page} })
     }
 
      //caching data with react query 
   const {isLoading,refetch,isFetching} = useQuery('getPosts',getPosts,{
               
     onSuccess:(res)=>{
+      console.log({res})
      setPosts(res)
     },
     onError:(err)=>{
@@ -43,22 +86,43 @@ export default function PostList() {
 const handelLimit=async (e)=>{
 
  await  setLimit(Number(e.target.value))
-  refetch()
+ refetch()
 }
-
+//decriment pages
 const decriment=async ()=>{
   if(page>0) await setPage(Number(page)-1)
-refetch()
+  refetch()
 }
+//incriment pages
 const incriment=async()=>{
  await setPage(Number(page)+1)
  refetch()
 }
-
+//handel search by userId
+const handelSearchByUser= async()=>{
+await setIsAllPost(false);
+await setIsPostByUser(true);
+await setIsPostTag(false);
+refetch()
+}
   return (
 <div> 
-<Header/>
 <Title title="Posts's List"/>
+<center>
+<div className='searchContainer'>
+
+<label>Search by user </label>
+
+<select onChange={(e)=>setIdUser(e.target.value)}  className="form-select">
+{ users?.data?.data.map((u,index)=>{
+  return <option style={{color:Theme.gray}} key={u.id} value={u.id}>{u.firstName} {u.lastName }</option>
+})}
+</select>
+<div>
+<button type="button" className='btnProfil' onClick={()=>handelSearchByUser()}>Search</button>
+</div>
+</div>
+</center>
 <div className='formPaginationContainer'>
 <div>
 <span style={{padding:10}}>Limit</span>
