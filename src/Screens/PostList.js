@@ -23,7 +23,10 @@ export default function PostList() {
     const[tags,setTags]=useState([]);
     const [idUser,setIdUser]=useState('');
     const[tag,setTag]=useState('');
-
+    const [limitUser,setLimitUser]=useState(20);
+    const [pageUser,setPageUser]=useState(0);
+    const [limitTag,setLimitTag]=useState(20);
+    const [pageTag,setPageTag]=useState(0);
 //on mount ofcomponenet do those actions
     useEffect(() => {
 
@@ -42,9 +45,10 @@ export default function PostList() {
     
 //get lists of user 
 const getUserTagList=async()=>{
-const listUser= API.get(`/user`,{ params: { limit :limit } })
-const listTag=  API.get(`/tag`,{ params: { limit :limit } })
+const listUser= API.get(`/user`,{ params: { limit :limitUser,page:pageUser } })
+const listTag=  API.get(`/tag`,{ params: { limit :limitTag,page:pageTag } })
 await axios.all([listUser,listTag]).then(axios.spread((res1, res2)=> {
+
   setUsers(res1);
   setTags(res2);
 })
@@ -62,13 +66,14 @@ useEffect(() => {
   //get list of users and tags on mount
   getUserTagList();
 
- }, [limit])
+ }, [limitUser,limitTag,pageTag,pageUser])
 
 // getposts ws call 
     const getPosts= ()=>{
+      
       if(isAllPost) return   API.get(`/post`,{ params: { limit :limit, page:page } })
       else if(isPostByUser) return API.get(`/user/${idUser}/post`,{ params: { limit :limit,page:page} })
-      else if (isPostByTag) return  API.get(`/tag/${tag}/post`,{ params: { limit :limit, page:page} })
+      else if (isPostByTag) return  API.get(`/tag/${tag.replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
     }
 
      //caching data with react query 
@@ -88,6 +93,16 @@ const handelLimit=async (e)=>{
  await  setLimit(Number(e.target.value))
  refetch()
 }
+const handelLimitUser=async (e)=>{
+
+  await  setLimitUser(Number(e.target.value))
+
+ }
+ const handelLimitTag=async (e)=>{
+
+  await  setLimitTag(Number(e.target.value))
+
+ }
 //decriment pages
 const decriment=async ()=>{
   if(page>0) await setPage(Number(page)-1)
@@ -98,18 +113,60 @@ const incriment=async()=>{
  await setPage(Number(page)+1)
  refetch()
 }
+
+const decrimentUser=async ()=>{
+ await setPageUser(Number(pageUser)-1)
+ 
+}
+//incriment pages
+const incrimentUser=async()=>{
+ await setPageUser(Number(pageUser)+1)
+
+}
+
+const decrimentTag=async ()=>{
+ await setPageTag(Number(pageTag)-1)
+
+}
+//incriment pages
+const incrimentTag=async()=>{
+ await setPageTag(Number(pageTag)+1)
+
+}
 //handel search by userId
 const handelSearchByUser= async()=>{
-await setIsAllPost(false);
-await setIsPostByUser(true);
-await setIsPostTag(false);
-refetch()
+  if(idUser!==""){
+    await setIsAllPost(false);
+   
+    await setIsPostByUser(true);
+    await setIsPostTag(false);
+    setTag('')
+    refetch()
+
+  }
+  else alert("please select a user")
 }
+
+//handel search by tag
+const handelSearchByTag= async()=>{
+  if(tag!==""){
+    await setIsAllPost(false);
+    await setIsPostByUser(false);
+    await setIsPostTag(true);
+    setIdUser("")
+    refetch()
+  }
+  else alert("please select a tag")
+
+  }
   return (
 <div> 
 <Title title="Posts's List"/>
+{/** user container */}
 <center>
 <div className='searchContainer'>
+  <span style={{color:Theme.yellow ,fontWeight:'bold'}}>Research by User</span>
+  <div className='selctandbtn'>
 <select onChange={(e)=>setIdUser(e.target.value)}  className="form-select ">
 <option value="" disabled selected>
 Search by user
@@ -121,6 +178,59 @@ Search by user
 <div>
 <button type="button" className='btnProfil' onClick={()=>handelSearchByUser()}>Search</button>
 </div>
+</div>
+<div className='formPaginationContainer'>
+<div>
+<span style={{padding:10}}>Limit User</span>
+<select onChange={(e)=>handelLimitUser(e)} value={limitUser}>
+{limitNumber&&limitNumber.map((l,index)=>{
+  return (<option key={index} value={l}>{l}</option>)
+})}
+</select>
+   </div>
+ <div className='previousNext'>
+ <button className='unsetBtn' onClick={()=>decrimentUser()}> <GrCaretPrevious color={Theme.black} size={20}/></button>
+ <span style={{padding:20}}>{pageUser}</span>
+ <span>Page User</span>
+ <button className='unsetBtn' onClick={()=>incrimentUser()}> <GrCaretNext color={Theme.black} size={20}/></button>
+ </div>
+ </div>
+</div>
+</center>
+<br/>
+{/** tag container */}
+<center>
+<div className='searchContainer'>
+  <span style={{color:Theme.yellow ,fontWeight:'bold'}}>Research by Tag</span>
+  <div className='selctandbtn'>
+<select onChange={(e)=>setTag(e.target.value)}  className="form-select ">
+<option value="" disabled selected>
+Search by Tag
+</option>
+{ tags?.data?.data.map((t,index)=>{
+  return <option style={{color:Theme.gray}} key={t} value={t}>{t}</option>
+})}
+</select>
+<div>
+<button type="button" className='btnProfil' onClick={()=>handelSearchByTag()}>Search</button>
+</div>
+</div>
+<div className='formPaginationContainer'>
+<div>
+<span style={{padding:10}}>Limit Tags</span>
+<select onChange={(e)=>handelLimitTag(e)} value={limitTag}>
+{limitNumber&&limitNumber.map((l,index)=>{
+  return (<option key={index} value={l}>{l}</option>)
+})}
+</select>
+   </div>
+ <div className='previousNext'>
+ <button className='unsetBtn' onClick={()=>decrimentTag()}> <GrCaretPrevious color={Theme.black} size={20}/></button>
+ <span style={{padding:20}}>{pageTag}</span>
+ <span>Page Tags</span>
+ <button className='unsetBtn' onClick={()=>incrimentTag()}> <GrCaretNext color={Theme.black} size={20}/></button>
+ </div>
+ </div>
 </div>
 </center>
 <div className='formPaginationContainer'>
