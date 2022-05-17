@@ -7,7 +7,8 @@ import { Theme } from '../Colors.js/Color';
 import PostCard from '../Components/PostCard';
 import { Rings } from  'react-loader-spinner';
 import axios from 'axios';
-import { MultiSelect } from "react-multi-select-component";
+
+import { MultiSelect } from 'primereact/multiselect';
 export default function PostList() {
     const [posts,setPosts]=useState([])
     const [err,setErr]=useState('')
@@ -151,14 +152,12 @@ const handelSearchByTag= async()=>{
   {
     id:index,
     value:t,
-  
   }
  )
- 
   )
 setTags(temp)
   }, [])
-
+console.log({tags})
   return (
 <div> 
 <Title title="Posts's List"/>
@@ -203,14 +202,14 @@ Search by user
 <div className='searchContainer'>
   <span style={{color:Theme.yellow ,fontWeight:'bold'}}>Research by Tag</span>
   <div className='selctandbtn'>
-  <pre>{JSON.stringify(tag)}</pre>
-  <MultiSelect
-        options={tags}
-        labelledBy={tags.value}
-        value={tag}
-        onChange={setTag}
-        hasSelectAll={false}
-      />
+  <MultiSelect 
+  optionLabel="select a tag"
+   optionValue="value" 
+   value={tag} 
+   filter
+   options={tags}
+  onChange={(e) => setTag(e.value)} 
+    />
 <div>
 <button type="button" className='btnProfil' onClick={()=>handelSearchByTag()}>Search</button>
 </div>
