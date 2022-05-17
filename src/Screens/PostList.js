@@ -7,7 +7,7 @@ import { Theme } from '../Colors.js/Color';
 import PostCard from '../Components/PostCard';
 import { Rings } from  'react-loader-spinner';
 import axios from 'axios';
-
+import { MultiSelect } from "react-multi-select-component";
 export default function PostList() {
     const [posts,setPosts]=useState([])
     const [err,setErr]=useState('')
@@ -20,7 +20,7 @@ export default function PostList() {
     const[users,setUsers]=useState([]);
     const[tags,setTags]=useState([]);
     const [idUser,setIdUser]=useState('');
-    const[tag,setTag]=useState('');
+    const[tag,setTag]=useState([]);
     const [limitUser,setLimitUser]=useState(20);
     const [pageUser,setPageUser]=useState(0);
     const [totalPage,setTotalPage]=useState();
@@ -47,7 +47,7 @@ await axios.all([listUser,listTag]).then(axios.spread((res1, res2)=> {
 
   setUsers(res1);
   setTotalPageUser(Math.trunc(res1.data.total/res1.data.limit))
-  setTags(res2);
+  setTags(res2.data.data);
 })
 
 ).
@@ -66,11 +66,11 @@ useEffect(() => {
 
 // getposts ws call 
     const getPosts= ()=>{
-      
       if(isAllPost) return   API.get(`/post`,{ params: { limit :limit, page:page } })
       else if(isPostByUser) return API.get(`/user/${idUser}/post`,{ params: { limit :limit,page:page} })
       else if (isPostByTag) return  API.get(`/tag/${tag.replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
     }
+
 
      //caching data with react query 
   const {isLoading,refetch,isFetching} = useQuery('getPosts',getPosts,{
@@ -144,8 +144,21 @@ const handelSearchByTag= async()=>{
     refetch()
   }
   else alert("please select a tag")
-
   }
+
+  useEffect(() => {
+ let temp =tags.map((t,index)=>(
+  {
+    id:index,
+    value:t,
+  
+  }
+ )
+ 
+  )
+setTags(temp)
+  }, [])
+
   return (
 <div> 
 <Title title="Posts's List"/>
@@ -190,15 +203,14 @@ Search by user
 <div className='searchContainer'>
   <span style={{color:Theme.yellow ,fontWeight:'bold'}}>Research by Tag</span>
   <div className='selctandbtn'>
- <input  value={tag} list ="tag" onChange={(e)=>setTag(e.target.value)}  className="form-select" placeholder="Search by Tag"/>
-<datalist  id="tag" > 
-<option value="" disabled selected>
-Search by Tag
-</option>
-{ tags?.data?.data.map((t)=>{
-  return <option style={{color:Theme.gray}} key={t} value={t}/>
-})}
-</datalist>
+  <pre>{JSON.stringify(tag)}</pre>
+  <MultiSelect
+        options={tags}
+        labelledBy={tags.value}
+        value={tag}
+        onChange={setTag}
+        hasSelectAll={false}
+      />
 <div>
 <button type="button" className='btnProfil' onClick={()=>handelSearchByTag()}>Search</button>
 </div>
