@@ -7,7 +7,7 @@ import { Theme } from '../Colors.js/Color';
 import PostCard from '../Components/PostCard';
 import { Rings } from  'react-loader-spinner';
 import axios from 'axios';
-
+import { Button } from 'react-bootstrap';
 import { MultiSelect } from 'primereact/multiselect';
 export default function PostList() {
     const [posts,setPosts]=useState([])
@@ -40,7 +40,7 @@ export default function PostList() {
 
   
     
-//get lists of user 
+//get lists of user &tags
 const getUserTagList=async()=>{
 const listUser= API.get(`/user`,{ params: { limit :limitUser,page:pageUser } })
 const listTag=  API.get(`/tag`)
@@ -109,13 +109,13 @@ const incriment=async()=>{
 { await setPage(Number(page)+1)
  refetch()}
 }
-
+//decriment users pages
 const decrimentUser=async ()=>{
   if(pageUser>0)
 { await setPageUser(Number(pageUser)-1)}
  
 }
-//incriment pages
+//incriment user pages
 const incrimentUser=async()=>{
   if(pageUser<=totalPageUser)
 { await setPageUser(Number(pageUser)+1)}
@@ -147,17 +147,19 @@ const handelSearchByTag= async()=>{
   else alert("please select a tag")
   }
 
-  useEffect(() => {
- let temp =tags.map((t,index)=>(
+  /**  useEffect( () => {
+ let temp = tags.map((t,index)=>(
+   
   {
-    id:index,
-    value:t,
+    label:index,
+    value:t.replace(/\s/g,''),
   }
  )
   )
 setTags(temp)
   }, [])
 console.log({tags})
+*/
   return (
 <div> 
 <Title title="Posts's List"/>
@@ -175,7 +177,7 @@ Search by user
 })}
 </select>
 <div>
-<button type="button" className='btnProfil' onClick={()=>handelSearchByUser()}>Search</button>
+<Button type="button" className='btnProfil' onClick={()=>handelSearchByUser()}>Search</Button>
 </div>
 </div>
 <div className='formPaginationContainer'>
@@ -204,14 +206,13 @@ Search by user
   <div className='selctandbtn'>
   <MultiSelect 
   optionLabel="select a tag"
-   optionValue="value" 
    value={tag} 
    filter
    options={tags}
   onChange={(e) => setTag(e.value)} 
     />
 <div>
-<button type="button" className='btnProfil' onClick={()=>handelSearchByTag()}>Search</button>
+<Button type="button" className='btnProfil' onClick={()=>handelSearchByTag()}>Search</Button>
 </div>
 </div>
 </div>
