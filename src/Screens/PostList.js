@@ -23,6 +23,8 @@ export default function PostList() {
     const[tag,setTag]=useState('');
     const [limitUser,setLimitUser]=useState(20);
     const [pageUser,setPageUser]=useState(0);
+    const [totalPage,setTotalPage]=useState();
+    const [totalPageUser,setTotalPageUser]=useState();
 //on mount ofcomponenet do those actions
     useEffect(() => {
       //on mount clear error
@@ -44,13 +46,13 @@ const listTag=  API.get(`/tag`)
 await axios.all([listUser,listTag]).then(axios.spread((res1, res2)=> {
 
   setUsers(res1);
+  setTotalPageUser(Math.trunc(res1.data.total/res1.data.limit))
   setTags(res2);
 })
 
 ).
 catch(axios.spread((err1, err2)=>{
-console.log({err1})
-console.log({err2})
+alert("something went wrong")
 })
 )
 }
@@ -74,11 +76,11 @@ useEffect(() => {
   const {isLoading,refetch,isFetching} = useQuery('getPosts',getPosts,{
               
     onSuccess:(res)=>{
-      console.log({res})
+      setTotalPage(Math.trunc(res.data.total/res.data.limit))
      setPosts(res)
     },
     onError:(err)=>{
-       setErr('something went wrong ,please try again') 
+  alert('something went wrong ,please try again') 
     }
   });
 
@@ -95,22 +97,27 @@ const handelLimitUser=async (e)=>{
 
 //decriment pages
 const decriment=async ()=>{
-  await setPage(Number(page)-1)
-  refetch()
+  if(page>0)
+ { await setPage(Number(page)-1)
+  refetch()}
 }
 //incriment pages
+
 const incriment=async()=>{
- await setPage(Number(page)+1)
- refetch()
+  if(page<=totalPage)
+{ await setPage(Number(page)+1)
+ refetch()}
 }
 
 const decrimentUser=async ()=>{
- await setPageUser(Number(pageUser)-1)
+  if(pageUser>0)
+{ await setPageUser(Number(pageUser)-1)}
  
 }
 //incriment pages
 const incrimentUser=async()=>{
- await setPageUser(Number(pageUser)+1)
+  if(pageUser<=totalPageUser)
+{ await setPageUser(Number(pageUser)+1)}
 
 }
 
@@ -119,7 +126,6 @@ const incrimentUser=async()=>{
 const handelSearchByUser= async()=>{
   if(idUser!==""){
     await setIsAllPost(false);
-   
     await setIsPostByUser(true);
     await setIsPostTag(false);
     refetch()
@@ -170,10 +176,10 @@ Search by user
 </select>
    </div>
  <div className='previousNext'>
- <button className='unsetBtn' onClick={()=>decrimentUser()}> <GrCaretPrevious color={Theme.black} size={20}/></button>
+{ pageUser!==0?<button className='unsetBtn' onClick={()=>decrimentUser()}> <GrCaretPrevious color={Theme.black} size={20}/></button>:null}
  <span style={{padding:20}}>{pageUser}</span>
  <span>Page User</span>
- <button className='unsetBtn' onClick={()=>incrimentUser()}> <GrCaretNext color={Theme.black} size={20}/></button>
+{ totalPageUser!==pageUser?<button className='unsetBtn' onClick={()=>incrimentUser()}> <GrCaretNext color={Theme.black} size={20}/></button>:null}
  </div>
  </div>
 </div>
@@ -209,10 +215,10 @@ Search by Tag
 </select>
    </div>
  <div className='previousNext'>
- <button className='unsetBtn' onClick={()=>decriment()}> <GrCaretPrevious color={Theme.black} size={20}/></button>
+{page!==0? <button className='unsetBtn' onClick={()=>decriment()}> <GrCaretPrevious color={Theme.black} size={20}/></button>:null}
  <span style={{padding:20}}>{page}</span>
  <span>Page</span>
- <button className='unsetBtn' onClick={()=>incriment()}> <GrCaretNext color={Theme.black} size={20}/></button>
+ {totalPage!==page? <button className='unsetBtn' onClick={()=>incriment()}> <GrCaretNext color={Theme.black} size={20}/></button>:null}
  </div>
  </div>
 { isLoading||isFetching? 

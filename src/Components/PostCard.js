@@ -8,7 +8,6 @@ export default function PostCard({post}) {
   const handelNavigation=()=>{
     navigate('/PostDispaly',{state:post})
   }
-console.log(post)
   return (
     <Card className='cardContainer' style={{ width:'80%',marginTop:10}}>
       <div className='sameline'>
@@ -26,7 +25,7 @@ console.log(post)
     <Card.Img src={post.image} className="imgpost"  />
 
     {post.tags.map(t=>{
-      return <Badge className='tag'>#{t}</Badge>
+      return <Badge className='tag' key={t}>#{t}</Badge>
     })}
     </div>  
     <Card.Body>

@@ -15,32 +15,33 @@ const[err,setErr]=useState('')
 const [page,setPage]=useState(0)
 const {state}=useLocation();
 const [newComment,setNewComment]=useState('');
-const [totalPag,setTotalPage]=useState()
+const [totalPage,setTotalPage]=useState();
+
 const getCommentByPost=()=>{
-return API.get(`/post/${state.id}/comment`,{limit:10,page:page})
+return API.get(`/post/${state.id}/comment`,{ params: { limit :5, page:page } })
 }
   const {isLoading,refetch,isFetching} = useQuery('getCommentByPost',getCommentByPost,{
               
     onSuccess:(res)=>{
-  
-     setComments(res.data.data)
+    setComments(res);
+    setTotalPage(Math.trunc(res.data.total/res.data.limit))
     },
     onError:(err)=>{
-       setErr('something went wrong ,please try again') 
+       alert('something went wrong ,please try again') 
     }
   });
   //decriment pages
 const decriment=async ()=>{
-  if(page!=0)
+  if(page>0)
  { await setPage(Number(page)-1)
   refetch()}
 }
 
 //incriment pages
 const incriment=async()=>{
-  
- await setPage(Number(page)+1)
- refetch()
+  if(page<=totalPage)
+{ await setPage(Number(page)+1)
+ refetch()}
 }
 const handelSendComment=()=>{
   let comment={
@@ -49,15 +50,13 @@ owner:"60d0fe4f5311236168a109ca",
 post:state.id
   }
 API.post(`/comment/create`,comment).then(res=>{
-
   refetch();
   setNewComment("");
 })
 .catch(err=>{
-  console.log({err})
+  alert('something went wrong ,please try again') 
 })
 }
-
   return (
     <div>
 <Title title="Full Post"/>
@@ -95,12 +94,12 @@ API.post(`/comment/create`,comment).then(res=>{
     <Card.Footer>
     <span>comments</span>
     <div className='previousNext'>
- <button className='unsetBtn' onClick={()=>decriment()}> <GrCaretPrevious color={Theme.black} size={20}/></button>
+ {page!==0? <button className='unsetBtn' onClick={()=>decriment()}> <GrCaretPrevious color={Theme.black} size={20}/></button> :null}
  <span style={{padding:20}}>{page}</span>
  <span>Page</span>
- <button className='unsetBtn' onClick={()=>incriment()}> <GrCaretNext color={Theme.black} size={20}/></button>
+{totalPage!==page? <button className='unsetBtn' onClick={()=>incriment()}> <GrCaretNext color={Theme.black} size={20}/></button> :null}
  </div>
-{comments.map(comment=>{
+{comments?.data?.data.map(comment=>{
   return(
     <div  key={comment.id}>
 
@@ -114,6 +113,7 @@ API.post(`/comment/create`,comment).then(res=>{
 
 <label style={{padding:20}}>Add comment</label>
       <input
+      placeholder='Add a comment'
       type="text"
       value={newComment}
       onChange={(e)=>setNewComment(e.target.value)}
