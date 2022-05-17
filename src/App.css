@@ -84,11 +84,10 @@
 }
 .tag{
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 3px;
-  margin: 1%;
+  margin: 0.5%;
   text-align: center;
   color:white;
   border-radius: 10px;
@@ -101,7 +100,17 @@ margin: 10px;
 .sameline{
   display: flex;
   align-items: center;
-  justify-content: space-around;
   flex-direction: row;
 
+}
+.commentInfo{
+  display: flex;
+  flex-direction:row;
+  justify-content: space-around;
+  align-items: center;
+}
+.returntoline{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }

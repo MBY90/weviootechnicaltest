@@ -18,9 +18,13 @@ console.log(post)
         </div>
         <span>{post.owner.title} {post.owner.firstName} {post.owner.lastName}</span>
       </div>
+      <Card.Text>
+       {post.text}
+      </Card.Text>
+      <span style={{color:Theme.gray}}>{(post.publishDate).slice(0,10)}</span>
       <div className='cardpictagcontainer'>
     <Card.Img src={post.image} className="imgpost"  />
-  <span style={{color:Theme.gray}}>{post.publishDate}</span>
+
     {post.tags.map(t=>{
       return <Badge className='tag'>#{t}</Badge>
     })}
@@ -29,14 +33,12 @@ console.log(post)
       <div className='selctandbtn'>
         <AiOutlineLike
         color="#6495ED"
-        size={80}
+        size={70}
         style={{padding:20}}
         />
         <span style={{color:"#6495ED",fontSize:20,fontWeight:'bold',padding:20}}>{post.likes}</span>
       </div>
-      <Card.Text>
-       {post.text}
-      </Card.Text>
+
       <Button className='btnProfil'  onClick={()=>handelNavigation()} >Explore post</Button>
     </Card.Body>
   </Card>
