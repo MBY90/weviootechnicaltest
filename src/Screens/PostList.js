@@ -8,7 +8,7 @@ import PostCard from '../Components/PostCard';
 import { Rings } from  'react-loader-spinner';
 import axios from 'axios';
 import { Button } from 'react-bootstrap';
-import { MultiSelect } from 'primereact/multiselect';
+import Multiselect from 'multiselect-react-dropdown';
 export default function PostList() {
     const [posts,setPosts]=useState([])
     const [err,setErr]=useState('')
@@ -21,7 +21,7 @@ export default function PostList() {
     const[users,setUsers]=useState([]);
     const[tags,setTags]=useState([]);
     const [idUser,setIdUser]=useState('');
-    const[tag,setTag]=useState([]);
+    const [selectedTags,setSelectedTags]=useState([]);
     const [limitUser,setLimitUser]=useState(20);
     const [pageUser,setPageUser]=useState(0);
     const [totalPage,setTotalPage]=useState();
@@ -42,8 +42,8 @@ export default function PostList() {
     
 //get lists of user &tags
 const getUserTagList=async()=>{
-const listUser= API.get(`/user`,{ params: { limit :limitUser,page:pageUser } })
-const listTag=  API.get(`/tag`)
+const listUser= await API.get(`/user`,{ params: { limit :limitUser,page:pageUser } })
+const listTag= await API.get(`/tag`)
 await axios.all([listUser,listTag]).then(axios.spread((res1, res2)=> {
 
   setUsers(res1);
@@ -57,34 +57,63 @@ alert("something went wrong")
 })
 )
 }
-
-
 useEffect(() => {
   //get list of users and tags on mount
   getUserTagList();
 
  }, [limitUser,pageUser])
-
 // getposts ws call 
     const getPosts= ()=>{
       if(isAllPost) return   API.get(`/post`,{ params: { limit :limit, page:page } })
       else if(isPostByUser) return API.get(`/user/${idUser}/post`,{ params: { limit :limit,page:page} })
-      else if (isPostByTag) return  API.get(`/tag/${tag.replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
-    }
+      else if (isPostByTag){
+        if(selectedTags.length===1) return API.get(`/tag/${selectedTags[0].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
+        else if(selectedTags.length===2){ 
+       let firstCall = API.get(`/tag/${selectedTags[0].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
+       let secCall= API.get(`/tag/${selectedTags[1].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
+        return axios.all([firstCall,secCall])}
+        else if (selectedTags.length===3){
+
+        let firstCall =  API.get(`/tag/${selectedTags[0].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} });
+        let secCall=  API.get(`/tag/${selectedTags[1].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} });
+        let thirdCall=  API.get(`/tag/${selectedTags[2].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} });
+        return  axios.all([firstCall,secCall,thirdCall])}
+      }
+       
+      }
 
 
      //caching data with react query 
   const {isLoading,refetch,isFetching} = useQuery('getPosts',getPosts,{
               
     onSuccess:(res)=>{
-      setTotalPage(Math.trunc(res.data.total/res.data.limit))
-     setPosts(res)
+      if(selectedTags.length==2)
+      {
+        const newObj = Object.assign({}, res[0], res[1]);
+        setPosts(newObj)
+        if(newObj.data.total%newObj.data.limit!==0) setTotalPage(Math.trunc(newObj.data.total/newObj.data.limit)+1)
+        
+        else   setTotalPage(Math.trunc(Math.trunc(newObj.data.total/newObj.data.limit)))
+      }
+      else if(selectedTags.length==3)
+      {
+        const newObj = Object.assign({}, res[0], res[1],res[2]);
+        setPosts(newObj)
+        if(newObj.data.total%newObj.data.limit!==0) setTotalPage(Math.trunc(newObj.data.total/newObj.data.limit)+1)
+        
+      else   setTotalPage(Math.trunc(Math.trunc(newObj.data.total/newObj.data.limit)))
+      }
+ else {
+  setTotalPage(Math.trunc(res.data.total/res.data.limit))
+  setPosts(res)
+ }
+
     },
     onError:(err)=>{
   alert('something went wrong ,please try again') 
     }
   });
-
+console.log(totalPage)
 const handelLimit=async (e)=>{
 
  await  setLimit(Number(e.target.value))
@@ -137,7 +166,7 @@ const handelSearchByUser= async()=>{
 
 //handel search by tag
 const handelSearchByTag= async()=>{
-  if(tag!==""){
+  if(selectedTags!=""){
     await setIsAllPost(false);
     await setIsPostByUser(false);
     await setIsPostTag(true);
@@ -146,20 +175,9 @@ const handelSearchByTag= async()=>{
   }
   else alert("please select a tag")
   }
-
-  /**  useEffect( () => {
- let temp = tags.map((t,index)=>(
-   
-  {
-    label:index,
-    value:t.replace(/\s/g,''),
-  }
- )
-  )
-setTags(temp)
-  }, [])
-console.log({tags})
-*/
+const handelRestFilter= async()=>{
+  window.location.reload();
+}
   return (
 <div> 
 <Title title="Posts's List"/>
@@ -204,19 +222,32 @@ Search by user
 <div className='searchContainer'>
   <span style={{color:Theme.yellow ,fontWeight:'bold'}}>Research by Tag</span>
   <div className='selctandbtn'>
-  <MultiSelect 
-  optionLabel="select a tag"
-   value={tag} 
-   filter
-   options={tags}
-  onChange={(e) => setTag(e.value)} 
-    />
+  <Multiselect
+        isObject={false}
+        onRemove={(event) => {
+        }}
+        onSelect={(event) => {
+          setSelectedTags(event)
+          console.log(selectedTags[0])
+        }}
+        options={tags}
+        showCheckbox
+        selectionLimit={3}
+        placeholder="Select a tag"
+
+      />
 <div>
 <Button type="button" className='btnProfil' onClick={()=>handelSearchByTag()}>Search</Button>
 </div>
 </div>
 </div>
+<br/>
+<div className='searchContainer'>
+<Button className='btnProfil' onClick={handelRestFilter}>Reset filter</Button>
+</div>
+
 </center>
+
 <div className='formPaginationContainer'>
 <div>
 <span style={{padding:10}}>Limit</span>
@@ -233,6 +264,7 @@ Search by user
  {totalPage!==page? <button className='unsetBtn' onClick={()=>incriment()}> <GrCaretNext color={Theme.black} size={20}/></button>:null}
  </div>
  </div>
+
 { isLoading||isFetching? 
    (
   <div className='spinner'>
