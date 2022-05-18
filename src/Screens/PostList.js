@@ -67,16 +67,16 @@ useEffect(() => {
       if(isAllPost) return   API.get(`/post`,{ params: { limit :limit, page:page } })
       else if(isPostByUser) return API.get(`/user/${idUser}/post`,{ params: { limit :limit,page:page} })
       else if (isPostByTag){
-        if(selectedTags.length===1) return API.get(`/tag/${selectedTags[0].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
+        if(selectedTags.length===1) return API.get(`/tag/${selectedTags[0].trim()}/post`,{ params: { limit :limit, page:page} })
         else if(selectedTags.length===2){ 
-       let firstCall = API.get(`/tag/${selectedTags[0].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
-       let secCall= API.get(`/tag/${selectedTags[1].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} })
+       let firstCall = API.get(`/tag/${selectedTags[0].trim()}/post`,{ params: { limit :limit, page:page} })
+       let secCall= API.get(`/tag/${selectedTags[1].trim()}/post`,{ params: { limit :limit, page:page} })
         return axios.all([firstCall,secCall])}
         else if (selectedTags.length===3){
 
-        let firstCall =  API.get(`/tag/${selectedTags[0].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} });
-        let secCall=  API.get(`/tag/${selectedTags[1].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} });
-        let thirdCall=  API.get(`/tag/${selectedTags[2].replace(/\s/g,'')}/post`,{ params: { limit :limit, page:page} });
+        let firstCall =  API.get(`/tag/${selectedTags[0].trim()}/post`,{ params: { limit :limit, page:page} });
+        let secCall=  API.get(`/tag/${selectedTags[1].trim()}/post`,{ params: { limit :limit, page:page} });
+        let thirdCall=  API.get(`/tag/${selectedTags[2].trim()}/post`,{ params: { limit :limit, page:page} });
         return  axios.all([firstCall,secCall,thirdCall])}
       }
        
