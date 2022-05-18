@@ -87,18 +87,22 @@ useEffect(() => {
   const {isLoading,refetch,isFetching} = useQuery('getPosts',getPosts,{
               
     onSuccess:(res)=>{
+      //if there 2 tags filter do this logic
       if(selectedTags.length==2)
       {
         const newObj = Object.assign({}, res[0], res[1]);
         setPosts(newObj)
+        //get total pages 
         if(newObj.data.total%newObj.data.limit!==0) setTotalPage(Math.trunc(newObj.data.total/newObj.data.limit)+1)
         
         else   setTotalPage(Math.trunc(Math.trunc(newObj.data.total/newObj.data.limit)))
       }
+      //if there is 3 tags do this logic 
       else if(selectedTags.length==3)
       {
         const newObj = Object.assign({}, res[0], res[1],res[2]);
         setPosts(newObj)
+              //get total pages 
         if(newObj.data.total%newObj.data.limit!==0) setTotalPage(Math.trunc(newObj.data.total/newObj.data.limit)+1)
         
       else   setTotalPage(Math.trunc(Math.trunc(newObj.data.total/newObj.data.limit)))
@@ -113,7 +117,7 @@ useEffect(() => {
   alert('something went wrong ,please try again') 
     }
   });
-console.log(totalPage)
+
 const handelLimit=async (e)=>{
 
  await  setLimit(Number(e.target.value))
@@ -228,7 +232,7 @@ Search by user
         }}
         onSelect={(event) => {
           setSelectedTags(event)
-          console.log(selectedTags[0])
+       
         }}
         options={tags}
         showCheckbox
